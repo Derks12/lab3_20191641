@@ -7,6 +7,6 @@
 
     <style name="Theme.Lab3_20191641" parent="Base.Theme.Lab3_20191641" />
 
-    <style name="Theme.Lab3_20191641.WithActionBar" parent="Theme.Material3.DayNight">
-    </style>
+    <style name="Theme.Lab3_20191641.WithActionBar" parent="Theme.Material3.DayNight"></style>
+    <style name="Theme.Lab3_20191641.WithActionBar2" parent="Theme.Material3.DayNight"></style>
 </resources>

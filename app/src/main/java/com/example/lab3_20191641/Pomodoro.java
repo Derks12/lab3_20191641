@@ -12,13 +12,26 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.lab3_20191641.dto.Tareas;
+import com.example.lab3_20191641.services.retrofit1;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Pomodoro extends AppCompatActivity {
 
@@ -28,7 +41,7 @@ public class Pomodoro extends AppCompatActivity {
     private TextView temporizador;
     private Button buttonPlayReplay;
     CountDownTimer timer;
-    private Button logout;
+    private Integer id;
 
 
     @Override
@@ -51,6 +64,7 @@ public class Pomodoro extends AppCompatActivity {
         String lastName = intent.getStringExtra("lastName");
         String email = intent.getStringExtra("email");
         String gender = intent.getStringExtra("gender");
+        id = intent.getIntExtra("id",1);
 
         nombreTextView.setText(firstName);
         apellidoTextView.setText(lastName);
@@ -85,8 +99,72 @@ public class Pomodoro extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                temporizador.setText("25:00");
+                new MaterialAlertDialogBuilder(Pomodoro.this)
+                        .setTitle("Tiempo de trabajo terminado")
+                        .setMessage("Ya debes dejar de trabajar y descansar.")
+                        .setPositiveButton("Aceptar", (dialog, which) -> {
+                            startRestTimer();
+                        })
+                        .show();
             }
+
+            private void startRestTimer(){
+                long restDuration = 300000;
+                CountDownTimer restTimer = new CountDownTimer(restDuration , 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        long minutes = (millisUntilFinished / 1000) / 60;
+                        long seconds = (millisUntilFinished / 1000) % 60;
+                        temporizador.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        temporizador.setText("05:00");
+                        getTareas();
+                        //acá debería estar la lógica para enviar al nuevo activity donde están las tareas asignadas, falta esa lógica
+                    }
+                };
+
+            }
+
+            private void getTareas(){
+                int userId = id;
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("https://dummyjson.com/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                retrofit1 tareas = retrofit.create(retrofit1.class);
+                Call<List<Tareas>> call = tareas.getTareas(userId);
+
+                call.enqueue(new Callback<List<Tareas>>() {
+                    @Override
+                    public void onResponse(Call<List<Tareas>> call, Response<List<Tareas>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Tareas> tareas = response.body();
+                            if (tareas != null && !tareas.isEmpty()) {
+                                Intent intent = new Intent(Pomodoro.this, MostrarTareas.class);
+                                startActivity(intent);
+                            } else {
+                                new MaterialAlertDialogBuilder(Pomodoro.this)
+                                        .setTitle("¡Felicidades!")
+                                        .setMessage("Empezó el tiempo de descanso!")
+                                        .setPositiveButton("Entendido", null)
+                                        .show();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Tareas>> call, Throwable t) {
+
+                    }
+                });
+
+            }
+
         };
         timer.start();
     }

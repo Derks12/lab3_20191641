@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                                         String lastName = response.body().getLastName();
                                         String email = response.body().getEmail();
                                         String gender = response.body().getGender();
+                                        Integer id = response.body().getId();
 
                                         Intent intent = new Intent(MainActivity.this, Pomodoro.class);
 
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                         intent.putExtra("lastName", lastName);
                                         intent.putExtra("email", email);
                                         intent.putExtra("gender", gender);
+                                        intent.putExtra("id", id);
 
                                         startActivity(intent);
 

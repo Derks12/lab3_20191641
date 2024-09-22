@@ -1,7 +1,10 @@
 package com.example.lab3_20191641.services;
 
 import com.example.lab3_20191641.dto.Perfil;
+import com.example.lab3_20191641.dto.Tareas;
 import com.example.lab3_20191641.dto.User;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -29,7 +32,8 @@ public interface retrofit1 {
     @GET("users/{id}")
     Call<Perfil> getPerfilDetails(@Path("id") int id);
 
-
+    @GET("todos/user/{id}")
+    Call<List<Tareas>> getTareas(@Path("id") int userId);
 
 
 }
